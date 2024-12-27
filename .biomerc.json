@@ -1,0 +1,9 @@
+{
+  "formatter": {
+    "lineWidth": 80,
+    "indentStyle": "space",
+    "indentSize": 2,
+    "quoteStyle": "single",
+    "trailingComma": "all"
+  }
+}

@@ -1,0 +1,202 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - develop_main
+  pull_request:
+    branches:
+      - develop_main
+
+jobs:
+  cache-dependencies:
+    runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache.outputs.cache-hit }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Cache Node.js modules
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm install
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Restore Node.js modules from cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: node --run test:unit
+
+  coverage-tests:
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Restore Node.js modules from cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Run coverage tests
+        run: node --run test:coverage
+
+  format-code:
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Restore Node.js modules from cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Format code
+        run: node --run format
+
+  lint-code:
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Restore Node.js modules from cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Lint code
+        run: node --run lint
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint-code,format-code, unit-tests, coverage-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Restore Node.js modules from cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Build project
+        run: node --run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+      - name: Install Docker
+        run: |
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
+
+      - name: set repository name variable
+        run: echo "REPO_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build Docker images
+        run: |
+              docker build -t ghcr.io/${{ env.REPO_NAME }}/sa-web:${{ github.sha }} -t ghcr.io/${{ env.REPO_NAME }}/sa-web:latest .
+      - name: Push Docker image
+        if: github.ref == 'refs/heads/develop_main'
+        run: |
+          docker push ghcr.io/${{ env.REPO_NAME }}/sa-web --all-tags
+          
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop_main'
+    steps:
+    - name: Trigger deploy workflow in infrastructure repository
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.PAT }}
+        repository: SergioAnastacio/isc-sa-api-test
+        event-type: webdeploy

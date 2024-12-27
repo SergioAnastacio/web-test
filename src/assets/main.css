@@ -1,0 +1,12 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+:root {
+	--color-primary: #cb0d15;
+	--color-secondary: #0dcbc5;
+	--color-tertiary: #0d73cb;
+	--color-accent: #555865;
+	--color-light: #ecf0f1;
+	--color-complement: #f39c12;
+	--color-darker: #000000;
+	--color-dark: #34495e;
+}

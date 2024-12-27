@@ -1,0 +1,7 @@
+{
+  "extends": ["oxlint:recommended"],
+  "rules": {
+    "no-console": "warn",
+    "semi": ["error", "always"]
+  }
+}
