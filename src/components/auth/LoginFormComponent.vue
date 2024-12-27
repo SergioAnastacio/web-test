@@ -6,7 +6,7 @@
               @submit="handleSubmit"
               #default="{ state }"
             >
-              <FormKit
+            <FormKit
                 type="email"
                 name="email"
                 label="Correo Electrónico"
@@ -55,10 +55,15 @@
 </template>
 
 <script setup lang="ts">
+import type { LoginFormDTO } from "@/core/adapter/DTOs/LoginDTO";
+import { LoginRepositoryImp } from "@/core/adapter/LoginRepositoryImp";
 import router from "@/router";
+import { useAuthStore } from "@/stores/useAuthStorage";
 import { FormKit, reset } from "@formkit/vue";
 import { inject } from "vue";
 const notification = inject<Notification>("notification");
+const auth = useAuthStore();
+const log = new LoginRepositoryImp();
 interface Notification {
 	success: (message: string) => void;
 	error: (message: string) => void;
@@ -66,10 +71,12 @@ interface Notification {
 	info: (message: string) => void;
 	default: (message: string) => void;
 }
-const handleSubmit = async () => {
+
+const handleSubmit = async (formData: LoginFormDTO) => {
 	try {
-		//const token = await log.login(formData);
-		//auth.setToken(token);
+		const token = await log.login(formData);
+		console.log("Token recibido:", token);
+		auth.setToken(token);
 		reset("loginForm");
 		notification?.success("¡Bienvenido!");
 		router.push("/dashboard");

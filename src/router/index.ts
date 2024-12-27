@@ -4,11 +4,11 @@ const routes = [
 	{
 		path: "/",
 		name: "home",
-		redirect: "/dashboard",
+		redirect: "dashboard",
 		component: () => import("../views/dashboard/DashboardLayout.vue"),
 		children: [
 			{
-				path: "/dashboard",
+				path: "dashboard",
 				name: "dashboard",
 				component: () => import("../views/dashboard/HomeView.vue"),
 			},
