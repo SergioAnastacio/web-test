@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/useAuthStorage";
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
@@ -8,12 +9,16 @@ const routes = [
 		component: () => import("../views/dashboard/DashboardLayout.vue"),
 		children: [
 			{
-				path: "dashboard",
+				path: "/dashboard",
 				name: "dashboard",
 				component: () => import("../views/dashboard/HomeView.vue"),
 			},
+			{
+				path: "/details/:id",
+				name: "details",
+				component: () => import("../views/dashboard/DetailsView.vue"),
+			},
 		],
-		meta: { requiresAuth: true },
 	},
 	{
 		path: "/auth",
@@ -39,6 +44,21 @@ const routes = [
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes,
+});
+
+router.beforeEach((to, from, next) => {
+	const authStore = useAuthStore();
+	if (to.matched.some((record) => record.meta.requiresAuth)) {
+		if (!authStore.isAuthenticated) {
+			next({ name: "login" });
+		} else {
+			next();
+		}
+	} else if (to.name === "login" && authStore.isAuthenticated) {
+		next({ name: "dashboard" });
+	} else {
+		next();
+	}
 });
 
 export default router;

@@ -18,7 +18,7 @@ export const useIamStore = defineStore("iamStore", () => {
 			const getUser = new GetUser(userRepository);
 			user.value = await getUser.execute();
 		} catch (err) {
-			error.value = "Failed to fetch user";
+			error.value = "Failed to fetch user" + err;
 		} finally {
 			loading.value = false;
 		}

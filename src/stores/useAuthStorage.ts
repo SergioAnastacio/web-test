@@ -4,10 +4,12 @@ import { ref, watch } from "vue";
 
 export const useAuthStore = defineStore("authStore", () => {
 	const token = ref<string>(localStorage.getItem("token") || "");
+	const isAuthenticated = ref<boolean>(false);
 
 	const setToken = (value: string) => {
 		token.value = value;
 		localStorage.setItem("token", value);
+		isAuthenticated.value = true;
 	};
 
 	const getToken = () => {
@@ -17,6 +19,7 @@ export const useAuthStore = defineStore("authStore", () => {
 	const removeToken = () => {
 		token.value = "";
 		localStorage.removeItem("token");
+		isAuthenticated.value = false;
 	};
 
 	watch(token, (newToken) => {
@@ -25,5 +28,5 @@ export const useAuthStore = defineStore("authStore", () => {
 		}
 	});
 
-	return { token, setToken, getToken, removeToken };
+	return { token, isAuthenticated, setToken, getToken, removeToken };
 });

@@ -75,7 +75,6 @@ interface Notification {
 const handleSubmit = async (formData: LoginFormDTO) => {
 	try {
 		const token = await log.login(formData);
-		console.log("Token recibido:", token);
 		auth.setToken(token);
 		reset("loginForm");
 		notification?.success("¡Bienvenido!");

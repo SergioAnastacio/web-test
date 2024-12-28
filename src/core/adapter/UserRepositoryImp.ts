@@ -11,7 +11,7 @@ export class UserRepositoryImp implements UserRepository {
 			const parsedData = userDTOSchema.parse(response.data.data);
 			return toDomain(parsedData);
 		} catch (error) {
-			return null;
+			throw new Error("User not found" + error);
 		}
 	}
 
@@ -21,7 +21,7 @@ export class UserRepositoryImp implements UserRepository {
 			const parsedData = userDTOSchema.parse(response.data);
 			return toDomain(parsedData);
 		} catch (error) {
-			throw new Error("User not found");
+			throw new Error("User not found" + error);
 		}
 	}
 
@@ -29,7 +29,7 @@ export class UserRepositoryImp implements UserRepository {
 		try {
 			await axiosInstance.post("/user", toDTO(userAggregate));
 		} catch (error) {
-			throw new Error("Error saving user");
+			throw new Error("Error saving user" + error);
 		}
 	}
 }

@@ -6,7 +6,7 @@
           <span class="text-muted">© {{ year }} Digitalife. Todos los derechos reservados.</span>
         </div>
         <div class="col-md-4 text-center">
-          <img src="/logo1.png" alt="Logo" height="30">
+          <LogoComponent />
         </div>
         <div class="col-md-4 text-end">
           <span class="text-muted">dev@sergioanastacio.icu</span>
@@ -17,6 +17,8 @@
 </template>
 
 <script setup lang="ts">
+import LogoComponent from '../header/LogoComponent.vue';
+
 const date = new Date();
 const year = date.getFullYear();
 </script>
