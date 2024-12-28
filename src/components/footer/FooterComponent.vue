@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import LogoComponent from '../header/LogoComponent.vue';
+import LogoComponent from "../header/LogoComponent.vue";
 
 const date = new Date();
 const year = date.getFullYear();

@@ -8,17 +8,17 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits } from "vue";
 
 const props = defineProps<{
-  token: string | null;
-  userName: string | null;
+	token: string | null;
+	userName: string | null;
 }>();
 
-const emit = defineEmits(['logout']);
+const emit = defineEmits(["logout"]);
 
 const handleLogout = () => {
-  emit('logout');
+	emit("logout");
 };
 </script>
 

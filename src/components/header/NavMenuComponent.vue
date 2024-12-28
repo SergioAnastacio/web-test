@@ -8,12 +8,11 @@
   </div>
 </template>
 <script setup lang="ts">
-
 interface MenuItem {
-  text: string;
-  link: string;
+	text: string;
+	link: string;
 }
 const props = defineProps<{
-  menuItems: MenuItem[];
+	menuItems: MenuItem[];
 }>();
 </script>

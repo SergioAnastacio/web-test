@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref} from "vue";
+import { ref } from "vue";
 import LogoComponent from "./LogoComponent.vue";
 import NavMenuComponent from "./NavMenuComponent.vue";
 import UserMenuComponent from "./UserMenuComponent.vue";
@@ -24,20 +24,18 @@ import { onMounted } from "vue";
 const auth = useAuthStore();
 const user = useIamStore();
 
-const menuItems = ref([
-  { text: 'Inicio', link: '/' },
-]);
+const menuItems = ref([{ text: "Inicio", link: "/" }]);
 
 onMounted(async () => {
-  if (!auth.getToken()) {
-  } else {
-    user.fetchUser();
-  }
+	if (!auth.getToken()) {
+	} else {
+		user.fetchUser();
+	}
 });
 
 const logout = () => {
-  auth.removeToken();
-  user.flushData();
+	auth.removeToken();
+	user.flushData();
 };
 </script>
 
