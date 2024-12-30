@@ -3,8 +3,8 @@ import type { ImageUrl } from "../valueobj/ImageUrl";
 //*
 export class ProductImage {
 	constructor(
-		private readonly _url: ImageUrl,
 		private readonly _id: number,
+		private readonly _url: ImageUrl,
 	) {}
 	get id(): number {
 		return this._id;

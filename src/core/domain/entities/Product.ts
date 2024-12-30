@@ -3,13 +3,13 @@ import type { ProductImage } from "./ProductImages";
 
 export class Product {
 	constructor(
-		private readonly _id: number,
+		private _id: number,
 		private _name: string,
 		private _price: Money,
-		private _qty: string,
+		private _qty: number,
 		private _images: ProductImage[],
-		private readonly _created_at: Date,
-		private readonly _updated_at: Date,
+		private _created_at: Date,
+		private _updated_at: Date,
 	) {}
 
 	get id(): number {
@@ -24,7 +24,7 @@ export class Product {
 		return this._price;
 	}
 
-	get qty(): string {
+	get qty(): number {
 		return this._qty;
 	}
 
@@ -47,7 +47,7 @@ export class Product {
 		this._price = newPrice;
 	}
 
-	updateQty(newQty: string): void {
+	updateQty(newQty: number): void {
 		this._qty = newQty;
 	}
 

@@ -1,10 +1,10 @@
 import type { ProductRepository } from "../../ProductRepository";
 import type { Product } from "../../../domain/entities/Product";
 
-export class GetAllProducts {
+export class GetPageProducts {
 	constructor(private readonly productRepository: ProductRepository) {}
 
-	async execute(): Promise<Product[]> {
-		return this.productRepository.getAll();
+	async execute(perPage: number, page: number): Promise<Product[]> {
+		return this.productRepository.getPage(perPage, page);
 	}
 }

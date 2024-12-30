@@ -1,23 +1,53 @@
 import { axiosInstance } from "./AxiosConfig";
 import type { ProductRepository } from "../port/ProductRepository";
 import type { Product } from "../domain/entities/Product";
+import { productDTOSchema, productsDTOSchema } from "./DTOs/ProductDTO";
+import { toDomain, toDomainArray, toDTO } from "./MAPs/productMAP";
 
-//TODO: Save product , need atach image files to the request ***
-//TODO: Implements Shecma validation and mapper for Product
+//TODO: Try to implement a function to handle  errors like this HanldingErrors(err:Error,ERROR::TYPE:Enumerable,msg:string):void
+//TODO: maybe we can use logger instead of console.log to log errors in the future
 export class ProductRepositoryImp implements ProductRepository {
 	private readonly _endpoint: string = "products";
-	async getAll(): Promise<Product[]> {
-		const response = await axiosInstance.get(this._endpoint);
-		return response.data;
+
+	async getPage(perPage: number, page: number): Promise<Product[]> {
+		try {
+			const response = await axiosInstance.get(this._endpoint, {
+				params: {
+					perpage: perPage,
+					page: page,
+				},
+			});
+			const parsedData = productsDTOSchema.parse(response.data.data);
+			return toDomainArray(parsedData); //!! return []of domain object
+			//
+		} catch (err) {
+			throw new Error("Error fetching products" + err);
+		}
 	}
 	async getById(id: number): Promise<Product | null> {
-		const response = await axiosInstance.get(`${this._endpoint}/${id}`);
-		return response.data;
+		try {
+			const response = await axiosInstance.get(`${this._endpoint}/${id}`);
+			const parsedData = productDTOSchema.parse(response.data);
+			return toDomain(parsedData); //!! return single domain object
+		} catch (err) {
+			throw new Error("Error fetching product by id" + err);
+		}
 	}
+	//*TODO: Should be able to save product with images
 	async save(product: Product): Promise<void> {
-		await axiosInstance.post(this._endpoint, product);
+		try {
+			const productDTO = toDTO(product);
+			await axiosInstance.post(this._endpoint, productDTO);
+		} catch (err) {
+			throw new Error("Error saving product" + err);
+		}
 	}
+	//*TODO: Implement delete method
 	async delete(id: number): Promise<void> {
-		await axiosInstance.delete(`${this._endpoint}/${id}`);
+		try {
+			await axiosInstance.delete(`${this._endpoint}/${id}`);
+		} catch (err) {
+			throw new Error("Error deleting product" + err);
+		}
 	}
 }
