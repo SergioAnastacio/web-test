@@ -30,7 +30,7 @@
           <td>{{ formatCurrency(product.price.amount,product.price.currency) }}</td>
           <td>{{ product.qty }}</td>
           <td>
-            <button @click="$emit('editProduct', product)" class="btn btn-sm btn-outline-primary me-2">Editar</button>
+            <button @click="details(product.id)" class="btn btn-sm btn-outline-primary me-2">Editar</button>
           </td>
         </tr>
         
@@ -55,6 +55,7 @@ import { ref, onMounted, computed } from "vue";
 import { defineProps } from "vue";
 import PaginationComponent from "./PaginationComponent.vue";
 import { watch } from "vue";
+import router from "@/router";
 
 const useproductstore = useProductStore();
 const itemsPerPage = ref<number>(5);
@@ -91,5 +92,7 @@ const formatCurrency = (value: number, contry: string) => {
 	}).format(value);
 };
 
-defineEmits(["editProduct"]);
+const details = (id: number) => {
+	router.push(`/details/${id}`);
+};
 </script>

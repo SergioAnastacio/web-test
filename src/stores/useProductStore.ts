@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { ProductRepositoryImp } from "@/core/adapter/ProductRepositoryImp";
 import { GetPageProducts } from "@/core/port/appservices/product/GetPagePrododucts";
 import { GetByIDProduct } from "@/core/port/appservices/product/GetByIDProduct";
+import { DeleteByIDProduct } from "@/core/port/appservices/product/DeleteByIDProduct";
 import type { Product } from "@/core/domain/entities/Product";
 
 export const useProductStore = defineStore("productStore", () => {
@@ -45,6 +46,14 @@ export const useProductStore = defineStore("productStore", () => {
 		loading.value = false;
 		error.value = null;
 	};
+	const delteProduct = async (id: number) => {
+		try {
+			const deletebyidproduct = new DeleteByIDProduct(productRepository);
+			await deletebyidproduct.execute(id);
+		} catch (err) {
+			error.value = "Failed to delete product" + err;
+		}
+	};
 	return {
 		products,
 		product,
@@ -53,5 +62,6 @@ export const useProductStore = defineStore("productStore", () => {
 		endPage,
 		fetchProducts,
 		getProductById,
+		delteProduct,
 	};
 });

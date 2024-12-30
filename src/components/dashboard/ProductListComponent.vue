@@ -9,7 +9,7 @@
             Crear Nuevo Producto
           </button>
         </div>
-        <ProductTableComponent/>
+        <ProductTableComponent @edit-product=""/>
         
       </div>
     </div>

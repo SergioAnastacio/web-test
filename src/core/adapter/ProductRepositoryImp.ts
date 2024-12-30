@@ -27,10 +27,10 @@ export class ProductRepositoryImp implements ProductRepository {
 	async getById(id: number): Promise<Product | null> {
 		try {
 			const response = await axiosInstance.get(`${this._endpoint}/${id}`);
-			const parsedData = productDTOSchema.parse(response.data);
-			return toDomain(parsedData); //!! return single domain object
+			const parsedData = productDTOSchema.parse(response.data.data);
+			return toDomain(parsedData);
 		} catch (err) {
-			throw new Error("Error fetching product by id" + err);
+			throw new Error("Error fetching product by id: " + err);
 		}
 	}
 	//*TODO: Should be able to save product with images
