@@ -132,24 +132,24 @@ import { useModalStore } from "@/stores/useModalStore";
 import type { ProductSaveDTO } from "@/core/adapter/DTOs/ProductDTO";
 import ProductTableComponent from "@/components/dashboard/ProductTableComponent.vue";
 
-const { openModal, closeModal } = useModalStore(); //* Usefull to open and close modals
+const { openModal, closeModal } = useModalStore();
 
-const productStore = useProductStore(); 
+const productStore = useProductStore();
 const currentProduct = ref<ProductSaveDTO>({
-  id: 0,
-  name: "",
-  price: 0,
-  qty: 0,
-  images: [], 
-  urls: [], 
+	id: 0,
+	name: "",
+	price: 0,
+	qty: 0,
+	images: [],
+	urls: [],
 });
 
 const useUrls = ref(false);
 
 const toggleUploadMethod = () => {
-  useUrls.value = !useUrls.value;
-  currentProduct.value.images = [];
-  currentProduct.value.urls = [];
+	useUrls.value = !useUrls.value;
+	currentProduct.value.images = [];
+	currentProduct.value.urls = [];
 };
 
 //* Helper to format price
@@ -167,45 +167,47 @@ const qtyString = computed({
 const isEditing = ref(false);
 
 const addImage = () => {
-  if (currentProduct.value.images.length < 5) {
-    currentProduct.value.images.push(new File([], 'placeholder.jpg', { type: 'image/jpeg' }));
-  }
+	if (currentProduct.value.images.length < 5) {
+		currentProduct.value.images.push(
+			new File([], "placeholder.jpg", { type: "image/jpeg" }),
+		);
+	}
 };
 
 const addUrl = () => {
-  if (currentProduct.value.urls.length < 5) {
-    currentProduct.value.urls.push('');
-  }
+	if (currentProduct.value.urls.length < 5) {
+		currentProduct.value.urls.push("");
+	}
 };
 
 const fileErrors = ref<string[]>([]);
 
 const openCreateModal = () => {
 	currentProduct.value = {
-    id: 0,
+		id: 0,
 		name: "",
 		price: 0,
 		qty: 0,
 		images: [],
-    urls: [],
+		urls: [],
 	};
 	fileErrors.value = [];
-  useUrls.value = false;
+	useUrls.value = false;
 	openModal("productModal");
 };
 
 const handleFileChange = (event: Event, index: number) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (file) {
-    currentProduct.value.images[index] = file;
-  }
+	const file = (event.target as HTMLInputElement).files?.[0];
+	if (file) {
+		currentProduct.value.images[index] = file;
+	}
 };
 
 const submitProduct = () => {
-  //TODO: Implement save product
-  //* use saveproduct method inside use saveproduct class from product appservice.
-  // productStore.saveProduct(currentProduct.value);
-  closeModal("productModal");
+	//TODO: Implement save product
+	//* use saveproduct method inside use saveproduct class from product appservice.
+	// productStore.saveProduct(currentProduct.value);
+	closeModal("productModal");
 };
 </script>
 

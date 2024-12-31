@@ -1,7 +1,11 @@
 import { axiosInstance } from "./AxiosConfig";
 import type { ProductRepository } from "../port/ProductRepository";
-import type { Product } from "../domain/entities/Product";
-import { productDTOSchema, productsDTOSchema } from "./DTOs/ProductDTO";
+import { Product } from "../domain/entities/Product";
+import {
+	productDTOSchema,
+	productsDTOSchema,
+	type ProductSaveDTO,
+} from "./DTOs/ProductDTO";
 import { toDomain, toDomainArray, toDTO } from "./MAPs/productMAP";
 import router from "@/router";
 
@@ -30,7 +34,7 @@ export class ProductRepositoryImp implements ProductRepository {
 			const response = await axiosInstance.get(`${this._endpoint}/${id}`);
 			const parsedData = productDTOSchema.parse(response.data.data);
 			return toDomain(parsedData);
-		} catch (err:any) {
+		} catch (err: any) {
 			//* Redirect to login page on 404 error
 			if (err.response.status === 404) {
 				router.push("/");
@@ -39,14 +43,18 @@ export class ProductRepositoryImp implements ProductRepository {
 		}
 	}
 	//*TODO: Should be able to save product with images
-	async save(product: Product): Promise<void> {
+	async save(product: Product | ProductSaveDTO, id?: number): Promise<void> {
 		try {
-			const productDTO = toDTO(product);
-			await axiosInstance.post(this._endpoint, productDTO);
+			const url = id ? `${this._endpoint}/${id}` : this._endpoint;
+
+			const productDTO = product instanceof Product ? toDTO(product) : product;
+
+			await axiosInstance.post(url, productDTO);
 		} catch (err) {
 			throw new Error("Error saving product" + err);
 		}
 	}
+
 	//*TODO: Implement delete method
 	async delete(id: number): Promise<void> {
 		try {

@@ -8,10 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import router from '@/router';
+import router from "@/router";
 const toHome = () => {
-    router.push({ name: 'Home' });
-}
+	router.push({ name: "Home" });
+};
 </script>
 
 <style scoped>

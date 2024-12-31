@@ -49,7 +49,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 	const authStore = useAuthStore();
 	if (to.matched.some((record) => record.meta.requiresAuth)) {
-		if (!authStore.isAuthenticated) {
+		if (!authStore.isAuthenticated && to.name !== "login") {
+			//! check if user is authenticated and not on login page
 			next({ name: "login" });
 		} else {
 			next();
