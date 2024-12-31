@@ -3,6 +3,7 @@ import type { ProductRepository } from "../port/ProductRepository";
 import type { Product } from "../domain/entities/Product";
 import { productDTOSchema, productsDTOSchema } from "./DTOs/ProductDTO";
 import { toDomain, toDomainArray, toDTO } from "./MAPs/productMAP";
+import router from "@/router";
 
 //TODO: Try to implement a function to handle  errors like this HanldingErrors(err:Error,ERROR::TYPE:Enumerable,msg:string):void
 //TODO: maybe we can use logger instead of console.log to log errors in the future
@@ -29,7 +30,11 @@ export class ProductRepositoryImp implements ProductRepository {
 			const response = await axiosInstance.get(`${this._endpoint}/${id}`);
 			const parsedData = productDTOSchema.parse(response.data.data);
 			return toDomain(parsedData);
-		} catch (err) {
+		} catch (err:any) {
+			//* Redirect to login page on 404 error
+			if (err.response.status === 404) {
+				router.push("/");
+			}
 			throw new Error("Error fetching product by id: " + err);
 		}
 	}

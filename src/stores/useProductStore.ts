@@ -5,6 +5,7 @@ import { GetPageProducts } from "@/core/port/appservices/product/GetPagePrododuc
 import { GetByIDProduct } from "@/core/port/appservices/product/GetByIDProduct";
 import { DeleteByIDProduct } from "@/core/port/appservices/product/DeleteByIDProduct";
 import type { Product } from "@/core/domain/entities/Product";
+import router from "@/router";
 
 export const useProductStore = defineStore("productStore", () => {
 	const products = ref<Product[]>([]);
@@ -31,6 +32,7 @@ export const useProductStore = defineStore("productStore", () => {
 		}
 	};
 	const getProductById = async (id: number) => {
+			loading.value = true;
 		try {
 			const getByIdProduct = new GetByIDProduct(productRepository);
 			product.value = await getByIdProduct.execute(id);
@@ -43,7 +45,6 @@ export const useProductStore = defineStore("productStore", () => {
 	const flushData = () => {
 		products.value = [];
 		product.value = null;
-		loading.value = false;
 		error.value = null;
 	};
 	const delteProduct = async (id: number) => {

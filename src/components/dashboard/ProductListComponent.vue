@@ -9,7 +9,7 @@
             Crear Nuevo Producto
           </button>
         </div>
-        <ProductTableComponent @edit-product=""/>
+        <ProductTableComponent/>
         
       </div>
     </div>
@@ -75,24 +75,43 @@
                   message: 'text-danger message'
                 }"
               />
-              <div v-for="(url, index) in currentProduct.images" :key="index" class="mb-3">
+
+              <div class="mb-3">
+                <button type="button" class="btn btn-tertiary me-2" @click="toggleUploadMethod">
+                  {{ useUrls ? 'Usar Imágenes' : 'Usar URLs' }}
+                </button>
+              </div>
+              <button v-if="useUrls" type="button" class="btn btn-primary mb-3" @click="addUrl" :disabled="currentProduct.urls.length >= 5">Agregar URL</button>
+              <button v-if="!useUrls" type="button" class="btn btn-primary mb-3" @click="addImage" :disabled="currentProduct.images.length >= 5">Agregar Imagen</button>
+              
+
+              <div v-if="!useUrls" v-for="(image, index) in currentProduct.images" :key="index" class="mb-3">
                 <FormKit
-                  type="url"
-                  :name="'url' + index"
-                  :label="'Imagen de producto ' + (index + 1)"
-                  validation="required|url"
-                  v-model="currentProduct.images[index].url"
+                  type="file"
+                  :name="'image-' + index"
+                  :label="'Archivo de Imagen ' + (index + 1)"
+                  @change="handleFileChange($event, index)"
                   :classes="{
-                    outer: 'mb-4 outer',
-                    label: 'form-label label',
-                    input: 'form-control form-control-lg input',
-                    help: 'form-text text-muted help',
-                    messages: 'messages',
-                    message: 'text-danger message'
+                    outer: 'mb-3',
+                    label: 'form-label',
+                    input: 'form-control'
                   }"
                 />
               </div>
-              <button type="button" class="btn btn-primary mb-3" @click="addUrl" :disabled="currentProduct.images.length >= 5">Agregar URL</button>
+            
+              <div v-if="useUrls" v-for="(url, index) in currentProduct.urls" :key="index" class="mb-3">
+                <FormKit
+                  type="text"
+                  :name="'url-' + index"
+                  :label="'URL ' + (index + 1)"
+                  v-model="currentProduct.urls[index]"
+                  :classes="{
+                    outer: 'mb-3',
+                    label: 'form-label',
+                    input: 'form-control'
+                  }"
+                />
+              </div>
               <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
                 <button type="submit" class="btn btn-primary">Guardar Producto</button>
@@ -110,21 +129,28 @@ import { ref, computed } from "vue";
 import { FormKit } from "@formkit/vue";
 import { useProductStore } from "@/stores/useProductStore";
 import { useModalStore } from "@/stores/useModalStore";
-import type { ProductDTO } from "@/core/adapter/DTOs/ProductDTO";
+import type { ProductSaveDTO } from "@/core/adapter/DTOs/ProductDTO";
 import ProductTableComponent from "@/components/dashboard/ProductTableComponent.vue";
 
 const { openModal, closeModal } = useModalStore(); //* Usefull to open and close modals
 
-const productStore = useProductStore();
-const currentProduct = ref<ProductDTO>({
-	id: 0,
-	name: "",
-	price: 0,
-	qty: 0,
-	images: [{ id: 0, url: "" }],
-	created_at: "",
-	updated_at: "",
+const productStore = useProductStore(); 
+const currentProduct = ref<ProductSaveDTO>({
+  id: 0,
+  name: "",
+  price: 0,
+  qty: 0,
+  images: [], 
+  urls: [], 
 });
+
+const useUrls = ref(false);
+
+const toggleUploadMethod = () => {
+  useUrls.value = !useUrls.value;
+  currentProduct.value.images = [];
+  currentProduct.value.urls = [];
+};
 
 //* Helper to format price
 const priceString = computed({
@@ -140,35 +166,60 @@ const qtyString = computed({
 
 const isEditing = ref(false);
 
+const addImage = () => {
+  if (currentProduct.value.images.length < 5) {
+    currentProduct.value.images.push(new File([], 'placeholder.jpg', { type: 'image/jpeg' }));
+  }
+};
+
 const addUrl = () => {
-	if (currentProduct.value.images.length < 5) {
-		const newId =
-			currentProduct.value.images.length > 0
-				? Math.max(...currentProduct.value.images.map((img) => img.id)) + 1
-				: 1;
-		currentProduct.value.images.push({ id: newId, url: "" }); // Will push url to images array
-	}
+  if (currentProduct.value.urls.length < 5) {
+    currentProduct.value.urls.push('');
+  }
 };
 
 const fileErrors = ref<string[]>([]);
 
 const openCreateModal = () => {
 	currentProduct.value = {
-		id: 0,
+    id: 0,
 		name: "",
 		price: 0,
 		qty: 0,
 		images: [],
-		created_at: "",
-		updated_at: "",
+    urls: [],
 	};
 	fileErrors.value = [];
+  useUrls.value = false;
 	openModal("productModal");
 };
 
-const submitProduct = () => {
-	// just use create new product use case
+const handleFileChange = (event: Event, index: number) => {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (file) {
+    currentProduct.value.images[index] = file;
+  }
+};
 
-	closeModal("productModal");
+const submitProduct = () => {
+  //TODO: Implement save product
+  //* use saveproduct method inside use saveproduct class from product appservice.
+  // productStore.saveProduct(currentProduct.value);
+  closeModal("productModal");
 };
 </script>
+
+<style scoped>
+.btn-tertiary {
+  background-color: var(--color-complement);
+  border-color: transparent; 
+}
+.btn-secondary {
+  background-color: var(--color-primary);
+  border-color: transparent; 
+}
+.btn-primary {
+  background-color: var(--color-tertiary);
+  border-color: transparent; 
+}
+</style>

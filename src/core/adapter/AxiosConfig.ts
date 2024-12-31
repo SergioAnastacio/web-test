@@ -31,9 +31,6 @@ axiosInstance.interceptors.response.use(
 			// redirect to login
 			window.location.href = "/";
 		}
-		if (error.response.status === 404) {
-			window.location.href = "/";
-		}
 		return Promise.reject(error);
 	},
 );

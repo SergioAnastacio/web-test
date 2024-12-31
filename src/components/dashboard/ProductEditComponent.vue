@@ -1,9 +1,15 @@
 <template>
   <div class="container mt-5">
-    <div class="row">
+    <div v-if="useproductstore.loading" class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+    <div v-else class="row">
       <!-- Detalles del Producto -->
       <div class="col-md-6">
         <div class="card shadow-lg border-0">
+          
           <div id="productImageCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
               <div v-if="useproductstore.product && useproductstore.product.images" v-for="(image, index) in useproductstore.product.images" :key="index" class="carousel-item" :class="{ active: index === 0 }">
