@@ -1,4 +1,3 @@
-import type { ProductSaveDTO } from "../adapter/DTOs/ProductDTO";
 import type { Product } from "../domain/entities/Product";
 
 //* Important : Overload methods on interface are not allowed
@@ -7,6 +6,6 @@ import type { Product } from "../domain/entities/Product";
 export interface ProductRepository {
 	getPage(perPage: number, page: number): Promise<Product[]>;
 	getById(id: number): Promise<Product | null>;
-	save(product: Product | ProductSaveDTO, id?: number): Promise<void>;
+	save(product: Product | FormData, id?: number): Promise<void>;
 	delete(id: number): Promise<void>;
 }

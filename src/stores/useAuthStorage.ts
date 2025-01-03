@@ -4,7 +4,7 @@ import { ref, watch } from "vue";
 
 export const useAuthStore = defineStore("authStore", () => {
 	const token = ref<string>(localStorage.getItem("token") || "");
-	const isAuthenticated = ref<boolean>(false);
+	const isAuthenticated = ref<boolean>(!!token.value);
 
 	const setToken = (value: string) => {
 		token.value = value;

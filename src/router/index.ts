@@ -19,6 +19,9 @@ const routes = [
 				component: () => import("../views/dashboard/DetailsView.vue"),
 			},
 		],
+		meta: {
+			requiresAuth: true,
+		},
 	},
 	{
 		path: "/auth",
@@ -46,16 +49,20 @@ const router = createRouter({
 	routes,
 });
 
+//* Better navigation guard
+//TODO: Improve this guard to handle more cases
 router.beforeEach((to, from, next) => {
 	const authStore = useAuthStore();
 	if (to.matched.some((record) => record.meta.requiresAuth)) {
-		if (!authStore.isAuthenticated && to.name !== "login") {
-			//! check if user is authenticated and not on login page
+		if (!authStore.isAuthenticated) {
 			next({ name: "login" });
 		} else {
 			next();
 		}
-	} else if (to.name === "login" && authStore.isAuthenticated) {
+	} else if (
+		to.matched.some((record) => record.name === "login") &&
+		authStore.isAuthenticated
+	) {
 		next({ name: "dashboard" });
 	} else {
 		next();

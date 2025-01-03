@@ -40,52 +40,9 @@
         <div class="card shadow-lg border-0">
           <div class="card-body">
             <h3 class="card-title mb-4">Editar Producto</h3>
-            <FormKit
-              type="form"
-              @submit="updateProduct"
-              :actions="false"
-            >
-              <FormKit
-                type="text"
-                name="name"
-                label="Nombre del Producto"
-                v-model="editedProduct.name"
-                validation="required"
-                :classes="{
-                  outer: 'mb-3',
-                  label: 'form-label',
-                  input: 'form-control'
-                }"
-              />
-              <FormKit
-                type="number"
-                name="price"
-                label="Precio"
-                v-model="priceString"
-                validation="required|number|min:0"
-                :classes="{
-                  outer: 'mb-3',
-                  label: 'form-label',
-                  input: 'form-control'
-                }"
-              />
-              <FormKit
-                type="number"
-                name="qty"
-                label="Cantidad"
-                v-model="qtyString"
-                validation="required|number|min:0"
-                :classes="{
-                  outer: 'mb-3',
-                  label: 'form-label',
-                  input: 'form-control'
-                }"
-              />
-              <div class="d-flex gap-3">
-                <button type="submit" class="btn btn-primary mb-3">Actualizar Producto</button>
-                <button type="button" @click="confirmDelete" class="btn btn-danger mb-3">Eliminar Producto</button>
-              </div>
-            </FormKit>
+            
+
+            <ProductEditFormComponent :initialProduct="editedProduct" @saved="handleSave" @cancelled="handleCancel" />
           </div>
         </div>
       </div>
@@ -114,36 +71,38 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
-import { FormKit } from "@formkit/vue";
 import { useProductStore } from "@/stores/useProductStore";
 import { useModalStore } from "@/stores/useModalStore";
-import type { ProductDTO } from "@/core/adapter/DTOs/ProductDTO";
-import { computed } from "vue";
+import type { ProductSaveDTO } from "@/core/adapter/DTOs/ProductDTO";
+import ProductEditFormComponent from "./ProductEditFormComponent.vue";
+import router from "@/router";
 
 const props = defineProps<{ productId: number }>();
 const useproductstore = useProductStore();
 const { openModal, closeModal } = useModalStore();
 
-const editedProduct = ref<ProductDTO>({
-	id: 0,
-	name: "",
-	price: 0,
-	qty: 0,
-	images: [{ id: 0, url: "" }],
-	created_at: "",
-	updated_at: "",
-});
-//* Helper to format price
-const priceString = computed({
-	get: () => editedProduct.value.price.toString(),
-	set: (value) => (editedProduct.value.price = parseFloat(value)),
+const editedProduct = ref<ProductSaveDTO>({
+	id: useproductstore.product?.id ?? 0,
+	name: useproductstore.product?.name ?? "",
+	price: useproductstore.product?.price.amount ?? 0,
+	qty: useproductstore.product?.qty ?? 0,
+	images: [],
+	urls: [],
 });
 
-//* Helper to format qty
-const qtyString = computed({
-	get: () => editedProduct.value.qty.toString(),
-	set: (value) => (editedProduct.value.qty = parseFloat(value)),
-});
+watch(
+	() => useproductstore.product,
+	(newProduct) => {
+		editedProduct.value = {
+			id: newProduct?.id ?? 0,
+			name: newProduct?.name ?? "",
+			price: newProduct?.price.amount ?? 0,
+			qty: newProduct?.qty ?? 0,
+			images: [],
+			urls: [],
+		};
+	},
+);
 
 const fetchProduct = async (id: number) => {
 	await useproductstore.getProductById(id);
@@ -160,8 +119,12 @@ watch(
 	},
 );
 
-const updateProduct = () => {
-	//TODO: Implement update product
+const handleSave = () => {
+	router.push({ name: "dashboard" });
+};
+
+const handleCancel = () => {
+	confirmDelete();
 };
 
 const confirmDelete = () => {

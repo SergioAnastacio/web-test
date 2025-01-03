@@ -21,26 +21,34 @@
             </div>
           </td>
         </tr>
-        <tr v-if="!useproductstore.loading" v-for="product in useproductstore.products" :key="product.id">
+        <tr v-if="useproductstore.error">
+          <td colspan="6" class="text-center">
+            <div class="alert alert-danger" role="alert">
+              {{ useproductstore.error }}
+            </div>
+          </td>
+        </tr>
+        <tr v-if="!useproductstore.loading && useproductstore.products.length>0" v-for="product in useproductstore.products" :key="product.id">
           <td>{{ product.id }}</td>
           <td>
-            <img :src="product.images[0].url.url" alt="product.name" class="img-fluid" style="max-width: 50px" />
+            <img :src="product.images[0]?.url.url" alt="product.name" class="img-fluid" style="max-width: 50px" />
           </td>
           <td>{{ product.name }}</td>
           <td>{{ formatCurrency(product.price.amount,product.price.currency) }}</td>
           <td>{{ product.qty }}</td>
           <td>
-            <button @click="details(product.id)" class="btn btn-sm btn-outline-primary me-2">Editar</button>
+            
+
+              <button @click="details(product.id)" class="btn btn-sm btn-outline-primary me-2">Editar</button>
+            
           </td>
         </tr>
-        
-
-        <tr v-if="useproductstore.endPage">
+        <tr v-else-if="!useproductstore.loading && useproductstore.products.length===0">
           <td colspan="6" class="text-center">
             <div class="alert alert-warning" role="alert">
-              No hay más productos
+              No hay productos
             </div>
-          </td>
+          </td> 
         </tr>
       </tbody>
     </table>
@@ -72,7 +80,7 @@ const goToPrevious = () => {
 };
 
 const goToNext = () => {
-	if (!useproductstore.error) {
+	if (!useproductstore.endPage) {
 		currentPage.value++;
 	}
 };

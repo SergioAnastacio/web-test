@@ -11,6 +11,7 @@ import router from "./router";
 import "vue-toast-notification/dist/theme-bootstrap.css";
 
 import { API_URL } from "./config";
+import { useAuthStore } from "./stores/useAuthStorage";
 
 const $notification = useToast({
 	position: "top-right",
@@ -18,6 +19,8 @@ const $notification = useToast({
 });
 const app = createApp(App);
 app.use(createPinia());
+const userAuth = useAuthStore();
+userAuth.isAuthenticated = !!userAuth.getToken();
 app.provide("config", { API_URL });
 app.provide("notification", $notification);
 app.use(

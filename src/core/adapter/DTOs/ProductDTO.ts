@@ -21,6 +21,17 @@ export const productDTOSchema = z.object({
 
 //* Implement Custom DTO for Save Product Request
 //* Zod does not support file type , we can mark as any and redefine like Createat and updateat
+
+export interface ProductSaveDTO {
+	id?: number;
+	name: string;
+	price: number;
+	qty: number;
+	urls: string[];
+	images: File[];
+	create_at?: string;
+	update_at?: string;
+}
 export const saveProductDTOSchema = z.object({
 	id: z.number(),
 	name: z.string(),
@@ -29,8 +40,8 @@ export const saveProductDTOSchema = z.object({
 	urls: z.string().array(),
 	images: z
 		.array(z.any())
-		.refine((val) => val.every((val) => val instanceof File), {
-			message: "Invalid file type",
+		.refine((files) => files.every((file) => file instanceof File), {
+			message: "Cada elemento debe ser un archivo",
 		}), //! Server will handle  file validation
 	create_at: z.string().optional(), //! Server will handle this
 	update_at: z.string().optional(), //! Server will handle this
@@ -41,6 +52,3 @@ export const saveProductsSchema = saveProductDTOSchema.array();
 
 export type ProductDTO = z.infer<typeof productDTOSchema>; //! single productDTO
 export type ProductsDTO = z.infer<typeof productsDTOSchema>; //! array of productDTO
-
-export type ProductSaveDTO = z.infer<typeof saveProductDTOSchema>; //! single productDTO
-export type ProductsSaveDTO = z.infer<typeof saveProductsSchema>; //! array of productDTO

@@ -1,11 +1,7 @@
 import { axiosInstance } from "./AxiosConfig";
 import type { ProductRepository } from "../port/ProductRepository";
 import { Product } from "../domain/entities/Product";
-import {
-	productDTOSchema,
-	productsDTOSchema,
-	type ProductSaveDTO,
-} from "./DTOs/ProductDTO";
+import { productDTOSchema, productsDTOSchema } from "./DTOs/ProductDTO";
 import { toDomain, toDomainArray, toDTO } from "./MAPs/productMAP";
 import router from "@/router";
 
@@ -25,7 +21,7 @@ export class ProductRepositoryImp implements ProductRepository {
 			const parsedData = productsDTOSchema.parse(response.data.data);
 			return toDomainArray(parsedData); //!! return []of domain object
 			//
-		} catch (err) {
+		} catch (err: any) {
 			throw new Error("Error fetching products" + err);
 		}
 	}
@@ -42,20 +38,51 @@ export class ProductRepositoryImp implements ProductRepository {
 			throw new Error("Error fetching product by id: " + err);
 		}
 	}
-	//*TODO: Should be able to save product with images
-	async save(product: Product | ProductSaveDTO, id?: number): Promise<void> {
-		try {
-			const url = id ? `${this._endpoint}/${id}` : this._endpoint;
 
-			const productDTO = product instanceof Product ? toDTO(product) : product;
-
-			await axiosInstance.post(url, productDTO);
-		} catch (err) {
-			throw new Error("Error saving product" + err);
+	private async saveProductData(
+		url: string,
+		product: Product,
+		isUpdate: boolean,
+	): Promise<void> {
+		const dto = toDTO(product);
+		if (isUpdate) {
+			await axiosInstance.put(url, dto);
+		} else {
+			await axiosInstance.post(url, dto);
 		}
 	}
 
-	//*TODO: Implement delete method
+	private async saveProductFormData(
+		url: string,
+		product: FormData,
+		isUpdate: boolean,
+	): Promise<void> {
+		axiosInstance.defaults.headers["Content-Type"] = "multipart/form-data";
+		if (isUpdate) {
+			await axiosInstance.putForm(url, product);
+		} else {
+			await axiosInstance.post(url, product);
+		}
+	}
+	//TODO : Improve this function to handle product directly instead of FormData
+	async save(product: Product | FormData, id?: number): Promise<void> {
+		const isUpdate = id ? true : false;
+		const url = isUpdate ? `${this._endpoint}/${id}` : this._endpoint;
+		try {
+			if (product instanceof Product) {
+				await this.saveProductData(url, product, isUpdate);
+			} else {
+				await this.saveProductFormData(url, product, isUpdate);
+			}
+		} catch (err: any) {
+			if (err.response && err.response.status) {
+				throw new Error(
+					`Error saving product: ${err.response.status} ${err.response.statusText}`,
+				);
+			}
+		}
+	}
+
 	async delete(id: number): Promise<void> {
 		try {
 			await axiosInstance.delete(`${this._endpoint}/${id}`);
